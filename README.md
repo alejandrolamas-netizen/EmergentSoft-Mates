@@ -1,6 +1,14 @@
 # EmergentSoft Mates — ESIA/ECIA
 
+**EmergentSoft · Digital Mate for Enterprise Research & Communication**
+
+## What it is
+
 ESIA/ECIA (Emergent Content Intelligence Agent) is the research and communication Digital Mate within the EmergentSoft M8s architecture.
+
+## Business problem
+
+Enterprises need specialized AI agents that can research, reason, create, coordinate and execute communication workflows under organizational governance.
 
 ## Engineering baseline
 
@@ -22,31 +30,12 @@ The implementation target is the original ECIA nine-phase monorepo defined in th
 
 ```text
 ecia/
-├── apps/
-│   ├── dashboard/          # Next.js + React + TypeScript + Tailwind
-│   └── core-api/           # FastAPI REST + GraphQL + gRPC gateway
-├── services/
-│   ├── orchestrator/       # Orchestrator Agent
-│   ├── agents/             # 19 specialized agents
-│   └── billing-service/
-├── packages/
-│   ├── domain/
-│   ├── ai-providers/
-│   ├── social-connectors/
-│   ├── event-bus/
-│   └── sdk/
-│       ├── typescript/
-│       ├── python/
-│       └── go/
-├── infra/
-│   ├── terraform/
-│   ├── helm/
-│   └── k8s/
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   └── e2e/
-└── docs/
+├── apps/                   # Dashboard + Core API
+├── services/               # Orchestrator + 19 specialized agents + billing
+├── packages/               # Domain, AI providers, connectors, events and SDKs
+├── infra/                  # Terraform, Helm and Kubernetes
+├── tests/                  # Unit, integration and E2E
+└── docs/                   # Architecture and operational documentation
 ```
 
 The ECIA architecture specifies 19 specialized agents plus an Orchestrator: Trend, Research, Competitor, SEO, Strategy, Copywriter, Image Generation, Video Generation, Podcast, Translation, Brand, Compliance, Scheduler, Publishing, Moderation, Analytics, Learning, Campaign and Notification.
@@ -55,6 +44,19 @@ The ECIA architecture specifies 19 specialized agents plus an Orchestrator: Tren
 
 Within M8s, ESIA/ECIA is the research and communication Mate. M8s coordinates it with QAIzero, A-CRM, Sentinel and GreenLedger/Desbank.
 
-## Repository status
+## Commercial role
+
+ESIA/ECIA is positioned as an enterprise Digital Mate that can be deployed as part of governed M8s transformations, with SaaS, implementation and enterprise deployment paths defined by the underlying architecture.
+
+## Evidence & status
 
 Architecture baseline established. The complete nine-phase implementation must be populated only from recovered ECIA/ESIA source artifacts. Missing implementation files are not to be fabricated.
+
+## Security & IP
+
+See [`SECURITY.md`](SECURITY.md) and [`LICENSE`](LICENSE).
+
+## Commercial contact
+
+**Alejandro Lamas — Founder & CEO, EmergentSoft**  
+https://emergentsoft.io
