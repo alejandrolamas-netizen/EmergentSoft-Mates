@@ -1,0 +1,36 @@
+# Configuracion declarativa de Kong para las rutas orientadas a QAIzero.
+# Distinta del gateway general del Core API (Fase 2): estas rutas tienen
+# rate limiting mas permisivo (QAIzero es un consumidor de confianza, no un
+# cliente externo arbitrario) pero exigen mTLS, no solo Bearer JWT.
+_format_version: "3.0"
+
+services:
+  - name: ecia-qaizero-integration
+    url: http://ecia-core-api.ecia.svc.cluster.local:8000
+    routes:
+      - name: qaizero-manifest
+        paths: ["/v1/qaizero/manifest"]
+        methods: ["GET"]
+      - name: qaizero-tasks
+        paths: ["/v1/qaizero/tasks"]
+        methods: ["POST"]
+      - name: qaizero-scaling-signal
+        paths: ["/v1/qaizero/scaling-signal"]
+        methods: ["GET"]
+      - name: qaizero-health
+        paths: ["/v1/qaizero/health"]
+        methods: ["GET"]
+    plugins:
+      - name: mtls-auth
+        config:
+          ca_certificates: ["qaizero-ecosystem-ca"]
+      - name: rate-limiting
+        config:
+          minute: 600
+          policy: local
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 2
+
+# El resto de las rutas del Core API usa el gateway general documentado en
+# Fase 1/2 con Bearer JWT de usuario, no este servicio mTLS.
