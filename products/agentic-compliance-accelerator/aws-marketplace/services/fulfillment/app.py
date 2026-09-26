@@ -47,7 +47,6 @@ def provision(request: ProvisionRequest):
                 tenant.product_code,
                 tenant.marketplace_identifier,
             )
-            tenant.tenant_id = persisted["tenant_id"]
         token, expires_at = postgres_repository.create_session(tenant.tenant_id) if os.getenv("DATABASE_URL") else ("", None)
         payload = ProvisionResponse(**result)
         payload.session_token = token
