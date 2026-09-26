@@ -100,8 +100,14 @@ class AcaMarketplaceStack(Stack):
                 "AWS_MARKETPLACE_PRODUCT_CODE": self.node.try_get_context(
                     "marketplaceProductCode"
                 ) or "REPLACE_ME",
-                "DATABASE_URL": db.secret.secret_value_from_json("connectionString").unsafe_unwrap()
-                if False else "",
+                "DB_HOST": db.db_instance_endpoint_address,
+                "DB_PORT": str(db.db_instance_endpoint_port),
+                "DB_NAME": "aca",
+            },
+            secrets={
+                "DB_USERNAME": ecs.Secret.from_secrets_manager(db.secret, "username"),
+                "DB_PASSWORD": ecs.Secret.from_secrets_manager(db.secret, "password"),
+            },
             },
         )
         container.add_port_mappings(container_port=8080)
