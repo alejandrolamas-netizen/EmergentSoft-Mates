@@ -19,6 +19,8 @@ class ProvisionResponse(BaseModel):
     tenant: MarketplaceCustomer
     entitlements: list[dict[str, Any]]
     provisioned_at: datetime
+    session_token: str | None = None
+    session_expires_at: datetime | None = None
 
 
 class SubscriptionStatus(BaseModel):
