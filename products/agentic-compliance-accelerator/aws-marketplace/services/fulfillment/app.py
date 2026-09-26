@@ -16,7 +16,7 @@ app = FastAPI(title="Agentic Compliance Accelerator - Marketplace Fulfillment", 
 AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
 PRODUCT_CODE = os.getenv("AWS_MARKETPLACE_PRODUCT_CODE")
 
-marketplace = boto3.client("marketplacecommerceanalytics", region_name=AWS_REGION)
+marketplace = boto3.client("meteringmarketplace", region_name=AWS_REGION)
 entitlement = boto3.client("marketplace-entitlement", region_name=AWS_REGION)
 
 memory_repository = TenantRepository()
