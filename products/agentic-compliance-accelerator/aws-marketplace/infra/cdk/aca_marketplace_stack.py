@@ -1,9 +1,4 @@
-from aws_cdk import (
-    CfnOutput,
-    Duration,
-    RemovalPolicy,
-    Stack,
-)
+from aws_cdk import CfnOutput, Duration, RemovalPolicy, Stack
 from constructs import Construct
 from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_ecr as ecr
@@ -12,7 +7,6 @@ from aws_cdk import aws_ecs_patterns as ecs_patterns
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_logs as logs
 from aws_cdk import aws_rds as rds
-from aws_cdk import aws_secretsmanager as secretsmanager
 
 
 class AcaMarketplaceStack(Stack):
@@ -26,13 +20,12 @@ class AcaMarketplaceStack(Stack):
             nat_gateways=1,
         )
 
-        repository = ecr.Repository(
+        # The deployment workflow creates this repository before CDK deploy so
+        # the fulfillment image can be pushed before ECS starts.
+        repository = ecr.Repository.from_repository_name(
             self,
             "FulfillmentRepository",
-            repository_name="aca-marketplace-fulfillment",
-            image_scan_on_push=True,
-            lifecycle_rules=[ecr.LifecycleRule(max_image_count=10)],
-            removal_policy=RemovalPolicy.RETAIN,
+            "aca-marketplace-fulfillment",
         )
 
         db = rds.DatabaseInstance(
@@ -57,7 +50,13 @@ class AcaMarketplaceStack(Stack):
             removal_policy=RemovalPolicy.SNAPSHOT,
         )
 
-        cluster = ecs.Cluster(self, "AcaCluster", vpc=vpc, container_insights=True)
+        cluster = ecs.Cluster(
+            self,
+            "AcaCluster",
+            vpc=vpc,
+            container_insights=True,
+        )
+
         log_group = logs.LogGroup(
             self,
             "FulfillmentLogs",
@@ -88,6 +87,7 @@ class AcaMarketplaceStack(Stack):
             memory_limit_mib=1024,
             task_role=task_role,
         )
+
         container = task_definition.add_container(
             "Fulfillment",
             image=ecs.ContainerImage.from_ecr_repository(repository, "latest"),
@@ -105,14 +105,17 @@ class AcaMarketplaceStack(Stack):
                 "DB_NAME": "aca",
             },
             secrets={
-                "DB_USERNAME": ecs.Secret.from_secrets_manager(db.secret, "username"),
-                "DB_PASSWORD": ecs.Secret.from_secrets_manager(db.secret, "password"),
-            },
+                "DB_USERNAME": ecs.Secret.from_secrets_manager(
+                    db.secret,
+                    "username",
+                ),
+                "DB_PASSWORD": ecs.Secret.from_secrets_manager(
+                    db.secret,
+                    "password",
+                ),
             },
         )
         container.add_port_mappings(container_port=8080)
-
-        db.secret.grant_read(task_definition.task_role)
 
         service = ecs_patterns.ApplicationLoadBalancedFargateService(
             self,
@@ -133,6 +136,18 @@ class AcaMarketplaceStack(Stack):
             interval=Duration.seconds(30),
         )
 
-        CfnOutput(self, "FulfillmentRepositoryUri", value=repository.repository_uri)
-        CfnOutput(self, "FulfillmentLoadBalancerDns", value=service.load_balancer.load_balancer_dns_name)
-        CfnOutput(self, "PostgresSecretArn", value=db.secret.secret_arn)
+        CfnOutput(
+            self,
+            "FulfillmentRepositoryUri",
+            value=repository.repository_uri,
+        )
+        CfnOutput(
+            self,
+            "FulfillmentLoadBalancerDns",
+            value=service.load_balancer.load_balancer_dns_name,
+        )
+        CfnOutput(
+            self,
+            "PostgresSecretArn",
+            value=db.secret.secret_arn,
+        )
