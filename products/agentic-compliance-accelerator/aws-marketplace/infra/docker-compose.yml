@@ -12,7 +12,7 @@ services:
 
   fulfillment:
     build:
-      context: ./services/fulfillment
+      context: ..
     environment:
       AWS_REGION: us-east-1
       AWS_MARKETPLACE_PRODUCT_CODE: local-test-product
