@@ -125,7 +125,7 @@ class AcaMarketplaceStack(Stack):
             health_check_grace_period=Duration.seconds(90),
         )
 
-        db.connections.allow_default_port_from(service.service.connections.security_groups[0])
+        db.connections.allow_default_port_from(service.service)
 
         service.target_group.configure_health_check(
             path="/health",
