@@ -1,5 +1,6 @@
 from aws_cdk import CfnOutput, Duration, RemovalPolicy, Stack
 from constructs import Construct
+from aws_cdk import aws_acm as acm
 from aws_cdk import aws_ec2 as ec2
 from aws_cdk import aws_ecr as ecr
 from aws_cdk import aws_ecs as ecs
@@ -8,6 +9,7 @@ from aws_cdk import aws_iam as iam
 from aws_cdk import aws_logs as logs
 from aws_cdk import aws_rds as rds
 from aws_cdk import aws_wafv2 as wafv2
+from aws_cdk import aws_elasticloadbalancingv2 as elbv2
 
 
 class AcaMarketplaceStack(Stack):
@@ -156,6 +158,12 @@ class AcaMarketplaceStack(Stack):
         )
         container.add_port_mappings(container_port=8080)
 
+        certificate = acm.Certificate.from_certificate_arn(
+            self,
+            "FulfillmentCertificate",
+            certificate_arn,
+        )
+
         service = ecs_patterns.ApplicationLoadBalancedFargateService(
             self,
             "FulfillmentService",
@@ -164,21 +172,10 @@ class AcaMarketplaceStack(Stack):
             desired_count=2,
             public_load_balancer=True,
             listener_port=443,
-            certificate=ecs_patterns.ApplicationLoadBalancedTaskImageOptions.__annotations__.get(
-                "certificate"
-            ) if False else None,
+            protocol=elbv2.ApplicationProtocol.HTTPS,
+            certificate=certificate,
+            redirect_http=True,
             health_check_grace_period=Duration.seconds(90),
-        )
-
-        # Replace the pattern's HTTP listener with an HTTPS listener is not
-        # supported by mutating the generated listener. The certificate is
-        # therefore attached to the generated listener below.
-        listener = service.listener
-        listener.add_certificates(
-            "MarketplaceCertificate",
-            [__import__("aws_cdk.aws_elasticloadbalancingv2", fromlist=["ListenerCertificate"]).ListenerCertificate.from_arn(
-                certificate_arn
-            )],
         )
 
         db.connections.allow_default_port_from(service.service)
