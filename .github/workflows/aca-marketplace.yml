@@ -24,3 +24,5 @@ jobs:
           python-version: "3.12"
       - run: pip install -r services/fulfillment/requirements.txt pytest
       - run: pytest -q
+        env:
+          PYTHONPATH: .
