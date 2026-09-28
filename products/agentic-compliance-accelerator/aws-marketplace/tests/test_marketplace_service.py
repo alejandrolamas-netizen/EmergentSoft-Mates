@@ -1,3 +1,4 @@
+# Contract tests for AWS Marketplace fulfillment.
 from datetime import datetime, timezone
 
 from services.fulfillment.repository import TenantRepository
