@@ -2,9 +2,9 @@ import os
 from datetime import datetime, timezone
 
 import boto3
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 
-from .db import initialize_schema
+from .db import DATABASE_URL, initialize_schema
 from .models import ProvisionRequest, ProvisionResponse, SubscriptionStatus
 from .persistence import PostgresTenantRepository
 from .repository import TenantRepository
@@ -41,19 +41,37 @@ def provision(request: ProvisionRequest):
     try:
         result = service.provision(request.registration_token)
         tenant = result["tenant"]
-        if os.getenv("DATABASE_URL"):
-            persisted = postgres_repository.upsert(
+        if DATABASE_URL:
+            postgres_repository.upsert(
                 tenant.customer_identifier,
                 tenant.product_code,
                 tenant.marketplace_identifier,
             )
-        token, expires_at = postgres_repository.create_session(tenant.tenant_id) if os.getenv("DATABASE_URL") else ("", None)
+            token, expires_at = postgres_repository.create_session(tenant.tenant_id)
+        else:
+            raise RuntimeError("PostgreSQL persistence is required in Marketplace production")
         payload = ProvisionResponse(**result)
         payload.session_token = token
         payload.session_expires_at = expires_at
         return payload
     except Exception as exc:
         raise HTTPException(status_code=502, detail="AWS Marketplace provisioning failed") from exc
+
+
+@app.post("/marketplace/landing")
+async def marketplace_landing(request: Request):
+    """AWS Marketplace SaaS fulfillment/registration landing endpoint.
+
+    AWS Marketplace posts x-amzn-marketplace-token to the configured
+    fulfillment URL. The token is short-lived and must be resolved server-side.
+    """
+    form = await request.form()
+    registration_token = form.get("x-amzn-marketplace-token")
+    if not registration_token:
+        registration_token = request.query_params.get("x-amzn-marketplace-token")
+    if not registration_token or not isinstance(registration_token, str):
+        raise HTTPException(status_code=400, detail="AWS Marketplace registration token is required")
+    return provision(ProvisionRequest(registration_token=registration_token))
 
 
 @app.get("/marketplace/me")
