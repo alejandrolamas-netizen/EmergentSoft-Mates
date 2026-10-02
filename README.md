@@ -2,23 +2,27 @@
 
 **EmergentSoft · Digital Mate for Enterprise Research & Communication**
 
-## What it is
+## Status
+
+**Architecture baseline — implementation recovery / build-out required.**
 
 ESIA/ECIA (Emergent Content Intelligence Agent) is the research and communication Digital Mate within the EmergentSoft M8s architecture.
 
-## Business problem
+This repository currently documents the target engineering baseline. It must not be represented as a completed 19-agent production platform until the corresponding source, tests and deployment artifacts are present and verifiable in this repository.
 
-Enterprises need specialized AI agents that can research, reason, create, coordinate and execute communication workflows under organizational governance.
+## What it is
+
+ESIA/ECIA is intended to provide governed AI research, reasoning, content and communication workflows for enterprise environments.
 
 ## Engineering baseline
 
-The implementation target is the original ECIA nine-phase monorepo defined in the EmergentSoft Engineering OS documentation. This repository must contain recovered ECIA/ESIA source; unrelated Sentinel, GreenLedger, or QAIzero standalone projects must not be substituted for it.
+The target architecture is based on the original ECIA nine-phase monorepo specification.
 
 ### Core principles
 
 - Clean / Hexagonal Architecture + DDD bounded contexts
 - API-first and event-driven
-- Multi-tenant from day one with `org_id` isolation and quotas
+- Multi-tenant with `org_id` isolation and quotas
 - Model-agnostic AI providers behind ports
 - Extensible agent/plugin model
 - REST, GraphQL, gRPC, WebSocket/SSE and CLI interfaces
@@ -31,30 +35,32 @@ The implementation target is the original ECIA nine-phase monorepo defined in th
 ```text
 ecia/
 ├── apps/                   # Dashboard + Core API
-├── services/               # Orchestrator + 19 specialized agents + billing
+├── services/               # Orchestrator + specialized agents + billing
 ├── packages/               # Domain, AI providers, connectors, events and SDKs
 ├── infra/                  # Terraform, Helm and Kubernetes
 ├── tests/                  # Unit, integration and E2E
 └── docs/                   # Architecture and operational documentation
 ```
 
-The ECIA architecture specifies 19 specialized agents plus an Orchestrator: Trend, Research, Competitor, SEO, Strategy, Copywriter, Image Generation, Video Generation, Podcast, Translation, Brand, Compliance, Scheduler, Publishing, Moderation, Analytics, Learning, Campaign and Notification.
+The target specification describes 19 specialized agents plus an Orchestrator.
+
+## Evidence boundary
+
+The current repository contains the architecture/documentation baseline. Missing implementation files are not fabricated.
+
+Claims about production readiness, agent count, integrations, throughput, security certification or external validation should only be made when supported by code, tests, deployment artifacts or independent evidence.
 
 ## M8s role
 
-Within M8s, ESIA/ECIA is the research and communication Mate. M8s coordinates it with QAIzero, A-CRM, Sentinel and GreenLedger/Desbank.
+Within M8s, ESIA/ECIA is the research and communication Mate. M8s is intended to coordinate it with governance, security and other specialized capabilities.
 
 ## Commercial role
 
-ESIA/ECIA is positioned as an enterprise Digital Mate that can be deployed as part of governed M8s transformations, with SaaS, implementation and enterprise deployment paths defined by the underlying architecture.
-
-## Evidence & status
-
-Architecture baseline established. The complete nine-phase implementation must be populated only from recovered ECIA/ESIA source artifacts. Missing implementation files are not to be fabricated.
+ESIA/ECIA is intended as an enterprise Digital Mate that can be deployed as part of governed M8s transformations.
 
 ## Security & IP
 
-See [`SECURITY.md`](SECURITY.md) and [`LICENSE`](LICENSE).
+See `SECURITY.md` and `LICENSE`.
 
 ## Commercial contact
 
