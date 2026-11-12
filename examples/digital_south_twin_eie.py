@@ -37,9 +37,8 @@ def evaluate(candidate: Candidate) -> Evaluation:
         result = simulate(record.line, scenario)
         normalized["good_output"].append(min(1.0, result.estimated_good_units / 90.0))
         normalized["uptime"].append(result.uptime_rate)
-        normalized["energy_efficiency"].append(
-            max(0.0, 1.0 - result.estimated_energy_kwh / 200.0)
-        )
+        good_units_per_kwh = result.estimated_good_units / max(result.estimated_energy_kwh, 1.0)
+        normalized["energy_efficiency"].append(min(1.0, good_units_per_kwh / 0.5))
         shift_results.append({
             "timestamp": record.timestamp.isoformat(),
             "line_id": record.line.line_id,
@@ -59,7 +58,7 @@ def evaluate(candidate: Candidate) -> Evaluation:
             "aggregation": "arithmetic_mean_of_per_shift_normalized_metrics",
             "normalization": {
                 "good_output_reference_units": 90.0,
-                "energy_reference_kwh": 200.0,
+                "reference_good_units_per_kwh": 0.5,
             },
         },
     )
