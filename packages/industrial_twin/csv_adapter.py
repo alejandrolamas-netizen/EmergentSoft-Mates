@@ -50,8 +50,15 @@ def load_shift_records(source: str | Path | TextIO) -> list[ShiftRecord]:
 
         records: list[ShiftRecord] = []
         for row_number, row in enumerate(reader, start=2):
-            if not row or all(value is None or not value.strip() for value in row.values()):
+            if not row or all(value is None or not str(value).strip() for value in row.values()):
                 continue
+            if None in row:
+                raise CsvDataError(f"row {row_number}: contains more values than the header")
+            missing_values = [column for column in REQUIRED_COLUMNS if row.get(column) is None]
+            if missing_values:
+                raise CsvDataError(
+                    f"row {row_number}: missing values for " + ", ".join(missing_values)
+                )
             try:
                 timestamp = datetime.fromisoformat((row["timestamp"] or "").strip())
             except ValueError as exc:
