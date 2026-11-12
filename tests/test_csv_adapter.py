@@ -19,6 +19,7 @@ class CsvAdapterTests(unittest.TestCase):
         self.assertEqual(records[0].line.line_id, "line-01")
         self.assertEqual(records[0].line.shift_hours, 8)
         self.assertIsInstance(records[0].timestamp, datetime)
+        self.assertEqual(records[0].line.data_class, "csv_imported_unverified")
 
     def test_rejects_missing_columns(self):
         with self.assertRaisesRegex(CsvDataError, "missing required columns"):
@@ -32,6 +33,11 @@ class CsvAdapterTests(unittest.TestCase):
     def test_rejects_non_finite_measurements(self):
         invalid = VALID_ROW.replace(",0.82,", ",nan,")
         with self.assertRaisesRegex(CsvDataError, "finite number"):
+            load_shift_records(io.StringIO(HEADER + invalid))
+
+    def test_rejects_extra_csv_values(self):
+        invalid = VALID_ROW.rstrip("\\n") + ",unexpected\\n"
+        with self.assertRaisesRegex(CsvDataError, "more values than the header"):
             load_shift_records(io.StringIO(HEADER + invalid))
 
     def test_rejects_invalid_timestamp(self):
