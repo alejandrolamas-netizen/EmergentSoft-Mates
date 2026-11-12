@@ -7,20 +7,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from packages.eie_core import Candidate, Criterion, Evaluation, run_campaign
-from packages.industrial_twin import MachineLine, Scenario, simulate
+from packages.industrial_twin import Scenario, load_shift_records, simulate
 
 
-LINE = MachineLine(
-    line_id="demo-metalworking-line-01",
-    shift_hours=8,
-    units_per_hour=12,
-    utilization=0.82,
-    planned_downtime_minutes=20,
-    unplanned_downtime_minutes=35,
-    changeover_minutes=45,
-    energy_kwh_per_hour=18,
-    quality_rate=0.96,
-)
+DATA_PATH = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "data" / "industrial_shift_template.csv"
+SHIFT_RECORDS = load_shift_records(DATA_PATH)
+# The demo uses the first CSV row as the reference shift. All bundled rows are synthetic.
+LINE = SHIFT_RECORDS[0].line
 
 SCENARIOS = {
     "baseline": Scenario("baseline"),
