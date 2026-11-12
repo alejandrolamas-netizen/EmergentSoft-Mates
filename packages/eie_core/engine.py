@@ -116,6 +116,8 @@ def run_campaign(
         raise ValueError("product and objective are required")
     if iterations < 1:
         raise ValueError("iterations must be >= 1")
+    if iterations > 1 and refiner is None:
+        raise ValueError("refiner is required when iterations > 1")
 
     candidates = list(generator(0))
     if not candidates:
