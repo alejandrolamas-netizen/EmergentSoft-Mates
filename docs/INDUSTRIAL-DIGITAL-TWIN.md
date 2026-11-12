@@ -7,7 +7,7 @@ The Industrial Digital Twin is the first domain application of the EmergentSoft 
 - The twin represents a production line through explicit operating parameters.
 - The simulator evaluates alternative operating scenarios.
 - EIE compares scenario outputs against weighted objectives and preserves evidence.
-- A future data adapter can replace synthetic inputs with validated plant telemetry.
+- A validated, read-only CSV adapter now converts authorized shift exports into simulator inputs. The bundled CSV remains synthetic.
 
 ## Current prototype scope
 
@@ -22,12 +22,17 @@ It is **not yet**:
 
 The example uses synthetic demonstration parameters and illustrative normalization thresholds. It must not be presented as measured factory performance or as a validated savings estimate.
 
-## Run
+## Data ingestion and run
+
+The CSV schema is documented in [INDUSTRIAL-DATA-CONTRACT.md](INDUSTRIAL-DATA-CONTRACT.md). The adapter validates timestamps, required columns, numeric values and operating ranges.
 
 ```bash
 python examples/digital_south_twin_eie.py
+python examples/digital_south_twin_eie.py path/to/authorized_shift_export.csv
 python -m unittest discover -s tests -v
 ```
+
+The first CSV row is used as the reference shift for scenario comparison. The bundled template is synthetic; provide only anonymized, authorized plant exports for a pilot.
 
 ## Path to a real pilot
 
