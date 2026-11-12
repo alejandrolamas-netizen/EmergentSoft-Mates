@@ -36,7 +36,7 @@ class EngineTests(unittest.TestCase):
             return [Candidate("v1", {"version": 1})]
 
         def evaluator(candidate):
-            quality = 0.5 if candidate.candidate_id == "v1" else 0.95
+            quality = {"v1": 0.5, "v2": 0.75, "v3": 0.95}[candidate.candidate_id]
             return Evaluation(candidate.candidate_id, {"quality": quality})
 
         def refine(candidate, evaluation, iteration):
