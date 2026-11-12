@@ -4,6 +4,7 @@ This is a transparent, parameter-based demonstrator, not a calibrated physics mo
 or live-connected factory twin. Inputs must be replaced with measured plant data
 before operational decisions are made.
 """
+import math
 from dataclasses import asdict, dataclass
 from typing import Mapping
 
@@ -26,6 +27,13 @@ class MachineLine:
             raise ValueError("line_id is required")
         if not self.data_class:
             raise ValueError("data_class is required")
+        numeric_values = (
+            self.shift_hours, self.units_per_hour, self.utilization,
+            self.planned_downtime_minutes, self.unplanned_downtime_minutes,
+            self.changeover_minutes, self.energy_kwh_per_hour, self.quality_rate,
+        )
+        if not all(math.isfinite(value) for value in numeric_values):
+            raise ValueError("all machine line measurements must be finite numbers")
         if self.shift_hours <= 0 or self.units_per_hour <= 0:
             raise ValueError("shift_hours and units_per_hour must be positive")
         if not 0 <= self.utilization <= 1 or not 0 <= self.quality_rate <= 1:
@@ -46,6 +54,11 @@ class Scenario:
     def __post_init__(self) -> None:
         if not self.name:
             raise ValueError("scenario name is required")
+        scenario_values = (
+            self.downtime_reduction, self.changeover_reduction, self.utilization_delta,
+        )
+        if not all(math.isfinite(value) for value in scenario_values):
+            raise ValueError("all scenario parameters must be finite numbers")
         for value in (self.downtime_reduction, self.changeover_reduction):
             if not 0 <= value <= 1:
                 raise ValueError("reduction values must be in [0, 1]")
