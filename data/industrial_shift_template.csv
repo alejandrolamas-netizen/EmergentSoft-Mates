@@ -1,0 +1,3 @@
+timestamp,line_id,shift_hours,units_per_hour,utilization,planned_downtime_minutes,unplanned_downtime_minutes,changeover_minutes,energy_kwh_per_hour,quality_rate
+2026-11-01T06:00:00-03:00,synthetic-line-01,8,12,0.82,20,35,45,18,0.96
+2026-11-01T14:00:00-03:00,synthetic-line-01,8,12,0.79,20,48,35,18.5,0.95
