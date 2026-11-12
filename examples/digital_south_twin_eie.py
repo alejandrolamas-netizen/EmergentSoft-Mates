@@ -1,6 +1,7 @@
-"""Connect the industrial scenario simulator to the EIE campaign loop."""
+"""Evaluate operating scenarios across every shift in an input CSV."""
 from pathlib import Path
 import json
+import statistics
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -9,11 +10,8 @@ sys.path.insert(0, str(ROOT))
 from packages.eie_core import Candidate, Criterion, Evaluation, run_campaign
 from packages.industrial_twin import Scenario, load_shift_records, simulate
 
-
 DATA_PATH = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "data" / "industrial_shift_template.csv"
 SHIFT_RECORDS = load_shift_records(DATA_PATH)
-# The demo uses the first CSV row as the reference shift. All bundled rows are synthetic.
-LINE = SHIFT_RECORDS[0].line
 
 SCENARIOS = {
     "baseline": Scenario("baseline"),
@@ -27,26 +25,38 @@ SCENARIOS = {
 
 
 def generate(_iteration: int):
-    return [
-        Candidate(name, {"scenario": name})
-        for name in SCENARIOS
-    ]
+    return [Candidate(name, {"scenario": name}) for name in SCENARIOS]
 
 
 def evaluate(candidate: Candidate) -> Evaluation:
-    result = simulate(LINE, SCENARIOS[str(candidate.payload["scenario"])])
-    # Normalize against explicit demo reference limits for comparable scoring.
-    metrics = {
-        "good_output": min(1.0, result.estimated_good_units / 90.0),
-        "uptime": result.uptime_rate,
-        "energy_efficiency": max(0.0, 1.0 - result.estimated_energy_kwh / 200.0),
-    }
+    scenario = SCENARIOS[str(candidate.payload["scenario"])]
+    shift_results = []
+    normalized = {"good_output": [], "uptime": [], "energy_efficiency": []}
+
+    for record in SHIFT_RECORDS:
+        result = simulate(record.line, scenario)
+        normalized["good_output"].append(min(1.0, result.estimated_good_units / 90.0))
+        normalized["uptime"].append(result.uptime_rate)
+        normalized["energy_efficiency"].append(
+            max(0.0, 1.0 - result.estimated_energy_kwh / 200.0)
+        )
+        shift_results.append({
+            "timestamp": record.timestamp.isoformat(),
+            "line_id": record.line.line_id,
+            "data_class": record.line.data_class,
+            "simulation": result.to_dict(),
+        })
+
+    metrics = {name: statistics.fmean(values) for name, values in normalized.items()}
     return Evaluation(
         candidate_id=candidate.candidate_id,
         metrics=metrics,
         evidence={
-            "source": "synthetic_demo_parameters",
-            "simulation": result.to_dict(),
+            "source": "csv_imported_unverified",
+            "input_file": DATA_PATH.name,
+            "shift_count": len(SHIFT_RECORDS),
+            "shift_results": shift_results,
+            "aggregation": "arithmetic_mean_of_per_shift_normalized_metrics",
             "normalization": {
                 "good_output_reference_units": 90.0,
                 "energy_reference_kwh": 200.0,
@@ -58,7 +68,7 @@ def evaluate(candidate: Candidate) -> Evaluation:
 if __name__ == "__main__":
     result = run_campaign(
         product="digital-south-industrial-twin",
-        objective="compare production-line operating scenarios",
+        objective="compare production-line operating scenarios across CSV shift records",
         generator=generate,
         evaluator=evaluate,
         criteria=[
