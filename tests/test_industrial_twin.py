@@ -28,6 +28,23 @@ class IndustrialTwinTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             Scenario("invalid", downtime_reduction=1.5)
 
+    def test_machine_line_rejects_non_finite_values(self):
+        for value in (float("nan"), float("inf"), float("-inf")):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(ValueError, "finite numbers"):
+                    MachineLine(
+                        line_id="invalid-line", shift_hours=8, units_per_hour=10,
+                        utilization=value, planned_downtime_minutes=0,
+                        unplanned_downtime_minutes=0, changeover_minutes=0,
+                        energy_kwh_per_hour=10, quality_rate=0.95,
+                    )
+
+    def test_scenario_rejects_non_finite_values(self):
+        for value in (float("nan"), float("inf"), float("-inf")):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(ValueError, "finite numbers"):
+                    Scenario("invalid", utilization_delta=value)
+
 
 if __name__ == "__main__":
     unittest.main()
