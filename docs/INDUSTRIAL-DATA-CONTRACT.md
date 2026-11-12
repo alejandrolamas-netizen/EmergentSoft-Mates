@@ -2,7 +2,7 @@
 
 ## Purpose
 
-One CSV row represents one production-line shift snapshot. The integrated example evaluates every row in the file and reports per-shift evidence plus arithmetic-mean normalized metrics. This is a read-only interchange format for authorized, anonymized exports, not a live telemetry protocol.
+One CSV row represents one production-line shift snapshot. The integrated example evaluates every row in the file and reports per-shift evidence plus arithmetic-mean normalized metrics. Its energy-efficiency score is a normalized good-units-per-kWh productivity proxy, not a claim that total energy consumption falls in the scenario. This is a read-only interchange format for authorized, anonymized exports, not a live telemetry protocol.
 
 ## Required columns
 
