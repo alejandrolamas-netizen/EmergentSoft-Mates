@@ -2,7 +2,7 @@
 
 ## Purpose
 
-One CSV row represents one production-line shift snapshot. This is a read-only interchange format for authorized, anonymized exports, not a live telemetry protocol.
+One CSV row represents one production-line shift snapshot. The integrated example evaluates every row in the file and reports per-shift evidence plus arithmetic-mean normalized metrics. This is a read-only interchange format for authorized, anonymized exports, not a live telemetry protocol.
 
 ## Required columns
 
@@ -51,4 +51,4 @@ Do not upload confidential factory data to a public repository. Do not connect t
 
 ## Model limitation
 
-The CSV adapter does not make the simulator calibrated, predictive or live-connected. Energy estimation and throughput assumptions must be validated against observed plant data before any operational or financial claim is made.
+CSV-imported records are labeled `csv_imported_unverified` in simulation evidence. The bundled template is synthetic even though it enters through the CSV adapter. The adapter does not make the simulator calibrated, predictive or live-connected. Energy estimation and throughput assumptions must be validated against observed plant data before any operational or financial claim is made.
