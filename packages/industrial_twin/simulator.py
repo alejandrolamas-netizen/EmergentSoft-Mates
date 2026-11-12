@@ -19,10 +19,13 @@ class MachineLine:
     changeover_minutes: float
     energy_kwh_per_hour: float
     quality_rate: float
+    data_class: str = "synthetic_demo_parameters"
 
     def __post_init__(self) -> None:
         if not self.line_id:
             raise ValueError("line_id is required")
+        if not self.data_class:
+            raise ValueError("data_class is required")
         if self.shift_hours <= 0 or self.units_per_hour <= 0:
             raise ValueError("shift_hours and units_per_hour must be positive")
         if not 0 <= self.utilization <= 1 or not 0 <= self.quality_rate <= 1:
@@ -88,7 +91,7 @@ def simulate(line: MachineLine, scenario: Scenario) -> SimulationResult:
         estimated_energy_kwh=round(energy, 2),
         uptime_rate=round(available / shift_minutes, 4),
         assumptions={
-            "data_class": "synthetic_demo_parameters",
+            "data_class": line.data_class,
             "utilization": utilization,
             "quality_rate": line.quality_rate,
             "energy_model": "constant_kwh_per_hour_over_shift",
