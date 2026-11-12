@@ -32,7 +32,7 @@ python examples/digital_south_twin_eie.py path/to/authorized_shift_export.csv
 python -m unittest discover -s tests -v
 ```
 
-The first CSV row is used as the reference shift for scenario comparison. The bundled template is synthetic; provide only anonymized, authorized plant exports for a pilot.
+Every CSV row is simulated for each candidate scenario. EIE scores the arithmetic mean of the normalized per-shift metrics and retains the individual shift results in its evidence trace. The bundled template is synthetic; provide only anonymized, authorized plant exports for a pilot. CSV imports are marked unverified until a plant data owner confirms their definitions and provenance.
 
 ## Path to a real pilot
 
