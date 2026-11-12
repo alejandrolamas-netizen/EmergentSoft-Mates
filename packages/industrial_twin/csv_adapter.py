@@ -73,7 +73,7 @@ def load_shift_records(source: str | Path | TextIO) -> list[ShiftRecord]:
                 if column not in ("timestamp", "line_id")
             }
             try:
-                line = MachineLine(line_id=line_id, **numeric)
+                line = MachineLine(line_id=line_id, data_class="csv_imported_unverified", **numeric)
             except (TypeError, ValueError) as exc:
                 raise CsvDataError(f"row {row_number}: {exc}") from exc
             records.append(ShiftRecord(timestamp=timestamp, line=line))
