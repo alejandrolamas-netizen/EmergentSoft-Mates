@@ -1,6 +1,7 @@
 import io
 import unittest
 from datetime import datetime
+from pathlib import Path
 
 from packages.industrial_twin.csv_adapter import CsvDataError, load_shift_records
 
@@ -21,6 +22,12 @@ class CsvAdapterTests(unittest.TestCase):
         self.assertIsInstance(records[0].timestamp, datetime)
         self.assertEqual(records[0].line.data_class, "csv_imported_unverified")
 
+    def test_template_contains_multiple_shift_records(self):
+        template = Path(__file__).resolve().parents[1] / "data" / "industrial_shift_template.csv"
+        records = load_shift_records(template)
+        self.assertEqual(len(records), 2)
+        self.assertTrue(all(r.line.data_class == "csv_imported_unverified" for r in records))
+
     def test_rejects_missing_columns(self):
         with self.assertRaisesRegex(CsvDataError, "missing required columns"):
             load_shift_records(io.StringIO("timestamp,line_id\n"))
@@ -36,7 +43,7 @@ class CsvAdapterTests(unittest.TestCase):
             load_shift_records(io.StringIO(HEADER + invalid))
 
     def test_rejects_extra_csv_values(self):
-        invalid = VALID_ROW.rstrip("\\n") + ",unexpected\\n"
+        invalid = VALID_ROW.rstrip("\n") + ",unexpected\n"
         with self.assertRaisesRegex(CsvDataError, "more values than the header"):
             load_shift_records(io.StringIO(HEADER + invalid))
 
